@@ -11,7 +11,26 @@ function PreviewTestImages() {
     }, []);
 
     const createImageUrl = (inputs) => {
-        console.log(inputs);
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = 28;
+        canvas.height = 28;
+
+        const imageData = ctx.createImageData(28, 28);
+
+        for (let i = 0; i < imageData.width; i++) {
+            for (let j = 0; j < imageData.width; j++) {
+                const pixelValue = inputs[i][j];
+                const idx = (i * imageData.width + j) * 4;
+                imageData.data[idx] = pixelValue;
+                imageData.data[idx + 1] = pixelValue;
+                imageData.data[idx + 2] = pixelValue;
+                imageData.data[idx + 3] = 255;
+            }
+        }
+
+        ctx.putImageData(imageData, 0, 0);
+        return canvas.toDataURL();
     }
 
     if (!mnistData) {
