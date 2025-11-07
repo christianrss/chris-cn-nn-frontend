@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 function PreviewTestImages() {
     const [mnistData, setMnistData] = useState(null);
     const [binaryModel, setBinaryModel] = useState(null);
-    const [predictions, setPredictions] = useState([]);
+    const [predictions, setPredictions] = useState(null);
 
     useEffect(() => {
 
@@ -88,14 +88,22 @@ function PreviewTestImages() {
                         <button onClick={makeAllPredictions}>Make Predictions</button>
                     </div>
                     <div className="images">
-                        {inputs.map((input, index) => (
-                            <div>
-                                <div key={index} className="image-container">
+                        {inputs.map((input, index) => {
+                            const prediction = predictions ? predictions[index] : null;
+                            const isCorrect = prediction !== null && labels[index] === prediction;
+                            const borderColor = prediction === null ? "transparent" : isCorrect ? "green" : "red";
+
+                            return (
+                                <div 
+                                    key={index}
+                                    className="image-container"
+                                    style={{border: `2px solid ${borderColor}`, margin: "5px"}}
+                                >
                                     <img src={createImageUrl(input)} alt={`Digit ${labels[index]}`}/>
                                     <p>Label: {labels[index]}, Idx: {index}</p>
                                 </div>
-                            </div>
-                        ))}
+                            )
+                        })}
                     </div>
                 </div>
             </div>
