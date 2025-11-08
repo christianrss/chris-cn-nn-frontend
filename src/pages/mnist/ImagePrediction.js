@@ -5,8 +5,9 @@ const HEIGHT = 28;
 const SCALE = 10;
 function ImagePrediction() {
     const [binaryModel, setBinaryModel] = useState(null);
+    const [prediction, setPrediction] = useState(null);
     const canvasRef = useRef(null);
-    const isDrawingRef = userRef(false);
+    const isDrawingRef = useRef(false);
 
     useEffect(() => {
         fetch("/mnist/binary-model.json")
@@ -26,7 +27,7 @@ function ImagePrediction() {
         ctx.fillStyle = "black";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.strokeStyle = "white";
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 1.5;
 
         const startDrawing = (event) => {
             const { offsetX, offsetY } = event;
@@ -81,9 +82,23 @@ function ImagePrediction() {
         return grayScaleData;
     };
 
+    const activationFunction = (sum) => {
+        return sum >= 0 ? 1 : 0;
+    };
+
     const predict = () => {
         const inputs = preprocessCanvas();
-        
+        let sum = binaryModel.bias;
+
+        console.log(inputs);
+
+        binaryModel.weights.forEach((weight, i) => {
+            sum += weight * inputs[i];
+        });
+
+        const prediction = activationFunction(sum);
+        console.log(prediction);
+        setPrediction(prediction);
     };
 
     return (
