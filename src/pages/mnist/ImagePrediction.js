@@ -26,7 +26,7 @@ function ImagePrediction() {
         ctx.fillStyle = "black";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.strokeStyle = "white";
-        ctx.lineWidth = 1.7;
+        ctx.lineWidth = 2;
 
         const startDrawing = (event) => {
             const { offsetX, offsetY } = event;
@@ -68,6 +68,24 @@ function ImagePrediction() {
         };
     }, []);
 
+    const preprocessCanvas = () => {
+        const canvas = canvasRef.current;
+        const ctx = canvas.getContext("2d");
+        const imageData = ctx.getImageData(0, 0, WIDTH, HEIGHT);
+        const grayScaleData = [];
+
+        for (let i = 0; i < imageData.data.length; i += 4) {
+            grayScaleData.push(imageData.data[i]);
+        }
+
+        return grayScaleData;
+    };
+
+    const predict = () => {
+        const inputs = preprocessCanvas();
+        
+    };
+
     return (
 
         <div className="page-container">
@@ -82,7 +100,7 @@ function ImagePrediction() {
             </div>
             <div>
                 <button>Clear</button>
-                <button>Prediction</button>
+                <button onClick={predict}>Prediction</button>
             </div>
             <div>
                 Prediction: IS ZERO
