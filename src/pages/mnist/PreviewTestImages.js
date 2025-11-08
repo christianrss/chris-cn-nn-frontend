@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 
 function PreviewTestImages() {
     const [mnistData, setMnistData] = useState(null);
+    const [binaryModel, setBinaryModel] = useState(null);
+    const [predictions, setPredictions] = useState(null);
 
     useEffect(() => {
 
@@ -9,6 +11,42 @@ function PreviewTestImages() {
             .then(response => response.json())
             .then(data => setMnistData(data));
     }, []);
+
+    useEffect(() => {
+        fetch("/mnist/binary-model.json")
+        .then(response => response.json())
+        .then(data => setBinaryModel(data));
+    }, []);
+
+    const activationFunction = (sum) => {
+        return sum >= 0 ? 1 : 0;
+    }
+
+    const predict = (image) => {
+        let sum = binaryModel.bias;
+
+        const inputs = image.flat();
+
+        binaryModel.weights.forEach((weight, i) => {
+            sum += weight * inputs[i];
+        });
+
+        const prediction = activationFunction(sum);
+
+        return prediction;
+    };
+
+    const makeAllPredictions = () => {
+        if (!binaryModel) {
+            return;
+        }
+
+        const newPredictions = mnistData.inputs.map(image => {
+            return predict(image);
+        });
+        console.log(newPredictions);
+        setPredictions(newPredictions);
+    };
 
     const createImageUrl = (inputs) => {
         const canvas = document.createElement("canvas");
@@ -46,15 +84,26 @@ function PreviewTestImages() {
                     Mnist Test Images
                 </div>
                 <div className="page-content">
+                    <div style={{marginBottom: 20}}>
+                        <button onClick={makeAllPredictions}>Make Predictions</button>
+                    </div>
                     <div className="images">
-                        {inputs.map((input, index) => (
-                            <div>
-                                <div key={index} className="image-container">
+                        {inputs.map((input, index) => {
+                            const prediction = predictions ? predictions[index] : null;
+                            const isCorrect = prediction !== null && labels[index] === prediction;
+                            const borderColor = prediction === null ? "transparent" : isCorrect ? "green" : "red";
+
+                            return (
+                                <div 
+                                    key={index}
+                                    className="image-container"
+                                    style={{border: `2px solid ${borderColor}`, margin: "5px"}}
+                                >
                                     <img src={createImageUrl(input)} alt={`Digit ${labels[index]}`}/>
                                     <p>Label: {labels[index]}, Idx: {index}</p>
                                 </div>
-                            </div>
-                        ))}
+                            )
+                        })}
                     </div>
                 </div>
             </div>
